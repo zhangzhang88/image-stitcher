@@ -63,7 +63,9 @@ const Element = {
     borderControls    : document.getElementById('border-controls'),
     borderThickness   : document.getElementById('border-thickness'),
     thicknessValue    : document.getElementById('thickness-value'),
-    borderColor       : document.getElementById('border-color')
+    borderColor       : document.getElementById('border-color'),
+    selectFilesButton : document.getElementById('select-files-button'),
+    fileInput         : document.getElementById('file-input')
 };
 
 const ConfigKey = {
@@ -285,14 +287,18 @@ const addEventListeners = () => {
     });
 
     Element.stitchButton.addEventListener(EventName.click, stitchImages);
+
+    Element.selectFilesButton.addEventListener(EventName.click, () => {
+        Element.fileInput.click();
+    });
+
+    Element.fileInput.addEventListener(EventName.change, e => {
+        handleFiles(e.target.files);
+    });
 };
 
-const handleFileDrop = e => {
-    e.preventDefault();
-    dragState = false;
-    Element.fileDrop.classList.remove(CssClass.dragOver);
-
-    [...e.dataTransfer.files].forEach(file => {
+const handleFiles = files => {
+    [...files].forEach(file => {
         if (!file.type.match(Text.imageMimeTypePattern)) {
             return showError(`Invalid file type. Only image files are allowed. File: ${file.name}`);
         }
@@ -300,6 +306,7 @@ const handleFileDrop = e => {
         const tr      = document.createElement(Text.tableRowTag);
         const tdThumb = document.createElement(Text.tableDataTag);
         const tdName  = document.createElement(Text.tableDataTag);
+        const tdActions = document.createElement(Text.tableDataTag);
 
         tr.setAttribute(Attribute.draggable, Text.trueValue);
         tr.setAttribute(Attribute.dataFile, URL.createObjectURL(file));
@@ -311,8 +318,31 @@ const handleFileDrop = e => {
         tdThumb.appendChild(img);
 
         tdName.textContent = `${Text.imageSymbol} ${file.name}`;
+
+        const upButton = document.createElement('button');
+        upButton.textContent = '⬆️';
+        upButton.classList.add('btn', 'btn-ghost', 'btn-sm');
+        upButton.addEventListener(EventName.click, () => {
+            if (tr.previousElementSibling) {
+                tr.parentNode.insertBefore(tr, tr.previousElementSibling);
+            }
+        });
+
+        const downButton = document.createElement('button');
+        downButton.textContent = '⬇️';
+        downButton.classList.add('btn', 'btn-ghost', 'btn-sm');
+        downButton.addEventListener(EventName.click, () => {
+            if (tr.nextElementSibling) {
+                tr.parentNode.insertBefore(tr.nextElementSibling, tr);
+            }
+        });
+
+        tdActions.appendChild(upButton);
+        tdActions.appendChild(downButton);
+
         tr.appendChild(tdThumb);
         tr.appendChild(tdName);
+        tr.appendChild(tdActions);
 
         tr.addEventListener(EventName.dragOver, (e) => {
             e.preventDefault();
@@ -343,6 +373,13 @@ const handleFileDrop = e => {
         });
         Element.imagesList.appendChild(tr);
     });
+};
+
+const handleFileDrop = e => {
+    e.preventDefault();
+    dragState = false;
+    Element.fileDrop.classList.remove(CssClass.dragOver);
+    handleFiles(e.dataTransfer.files);
 };
 
 const clearImages = () => {

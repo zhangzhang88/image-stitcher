@@ -102,10 +102,12 @@
         </div>
     </div>
 </div>
-<div class="border px-8 py-8 dropzone" id="files">
+<div class="border px-8 py-4 dropzone" id="files">
   <div class="text-center">
     <i class="dropzone-icon fas fa-cloud-upload-alt"></i>
     <h4 class="dropzone-text">Drop images here</h4>
+    <button class="btn btn-accent btn-outline mt-4" id="select-files-button">Select Files</button>
+    <input type="file" id="file-input" multiple style="display: none;">
   </div>
 </div>
 <div class="overflow-x-auto center px-4 py-4">
@@ -114,6 +116,7 @@
         <tr>
             <td class="border-b border-gray-200">Preview</td>
             <td class="border-b border-gray-200">Filename</td>
+            <td class="border-b border-gray-200">Actions</td>
         </tr>
     </thead>
     <tbody id="images-list">

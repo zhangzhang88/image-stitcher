@@ -219,15 +219,27 @@ const addEventListeners = () => {
         }
     });
 
-    Element.saveButton.addEventListener(EventName.click, () => {
-        const canvas = Element.result.querySelector(Selector.canvas);
-        if (canvas) {
-            const link    = document.createElement('a');
-            link.download = 'stitched-image.png';
-            link.href     = canvas.toDataURL();
-            link.click();
+Element.saveButton.addEventListener(EventName.click, () => {
+    const canvas = Element.result.querySelector(Selector.canvas);
+    if (canvas) {
+        const link    = document.createElement('a');
+        
+        // 生成基于原始文件名的下载文件名
+        const fileNames = [...Element.imagesList.children].map(tr => tr.getAttribute(Attribute.dataName));
+        let downloadName = 'stitched-image.png';
+        
+        if (fileNames.length > 0) {
+            // 使用第一个文件的名称作为基础，移除扩展名并添加"-stitched"后缀
+            const firstFileName = fileNames[0];
+            const baseName = firstFileName.replace(/\.[^/.]+$/, ""); // 移除文件扩展名
+            downloadName = `${baseName}-stitched.png`;
         }
-    });
+        
+        link.download = downloadName;
+        link.href     = canvas.toDataURL();
+        link.click();
+    }
+});
 
     Element.zoomSlider.addEventListener(EventName.input, () => {
         const zoomLevel               = Element.zoomSlider.value;

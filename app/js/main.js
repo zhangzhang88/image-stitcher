@@ -34,7 +34,7 @@ const Text = {
     trueValue           : 'true',
     tableRowTag         : 'tr',
     tableDataTag        : 'td',
-    imageMimeTypePattern: /^image\//,
+    imageMimeTypePattern: /^(image\/|application\/pdf)/,
     imageSymbol         : '🎨',
     horizontalMode      : 'horizontal',
     displayBlock        : 'block',
@@ -300,10 +300,19 @@ const addEventListeners = () => {
 const handleFiles = files => {
     [...files].forEach(file => {
         if (!file.type.match(Text.imageMimeTypePattern)) {
-            return showError(`Invalid file type. Only image files are allowed. File: ${file.name}`);
+            return showError(`Invalid file type. Only image and PDF files are allowed. File: ${file.name}`);
         }
 
-        const tr      = document.createElement(Text.tableRowTag);
+        if (file.type === 'application/pdf') {
+            handlePdfFile(file);
+        } else {
+            handleImageFile(file);
+        }
+    });
+};
+
+const handleImageFile = file => {
+    const tr      = document.createElement(Text.tableRowTag);
         const tdThumb = document.createElement(Text.tableDataTag);
         const tdName  = document.createElement(Text.tableDataTag);
         const tdActions = document.createElement(Text.tableDataTag);
@@ -372,7 +381,33 @@ const handleFiles = files => {
             }
         });
         Element.imagesList.appendChild(tr);
-    });
+};
+
+const handlePdfFile = async file => {
+    const { pdfjsLib } = globalThis;
+    pdfjsLib.GlobalWorkerOptions.workerSrc = `https://mozilla.github.io/pdf.js/build/pdf.worker.mjs`;
+
+    const loadingTask = pdfjsLib.getDocument(URL.createObjectURL(file));
+    const pdf = await loadingTask.promise;
+
+    for (let i = 1; i <= pdf.numPages; i++) {
+        const page = await pdf.getPage(i);
+        const viewport = page.getViewport({ scale: 1.5 });
+        const canvas = document.createElement('canvas');
+        const context = canvas.getContext('2d');
+        canvas.height = viewport.height;
+        canvas.width = viewport.width;
+
+        const renderContext = {
+            canvasContext: context,
+            viewport: viewport
+        };
+        await page.render(renderContext).promise;
+
+        const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
+        const imageFile = new File([blob], `${file.name}-page-${i}.png`, { type: 'image/png' });
+        handleImageFile(imageFile);
+    }
 };
 
 const handleFileDrop = e => {

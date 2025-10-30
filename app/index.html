@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="author" content="Markus Zeller">
     <title>未来已到</title>
+    <script src="https://mozilla.github.io/pdf.js/build/pdf.mjs" type="module"></script>
     <link rel="icon" href="../favicon.png" type="image/png">
     <link href="css/output.css" rel="stylesheet">
     <link href="css/tweaks.css" rel="stylesheet">
@@ -17,7 +18,7 @@
 </dialog>
 
 <div class="text-center py-4">
-    <h1 class="text-2xl font-bold">拼接图片/合井长图</h1>
+    <h1 class="text-2xl font-bold">拼接图片/合井长图（支持多页PDF转长图）</h1>
     <p class="text-sm text-gray-500">不上传、不留存、不扫描、不识别，100%安全</p>
 </div>
 
@@ -111,7 +112,7 @@
 <div class="border px-8 py-4 dropzone" id="files">
   <div class="text-center">
     <i class="dropzone-icon fas fa-cloud-upload-alt"></i>
-    <h4 class="dropzone-text">Drop images here</h4>
+    <h4 class="dropzone-text">Drop images or a multi-page PDF here</h4>
     <button class="btn btn-accent btn-outline mt-4" id="select-files-button">Select Files</button>
     <input type="file" id="file-input" multiple style="display: none;">
   </div>

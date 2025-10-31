@@ -225,13 +225,19 @@ Element.saveButton.addEventListener(EventName.click, () => {
         const link    = document.createElement('a');
         
         // 生成基于原始文件名的下载文件名
-        const fileNames = [...Element.imagesList.children].map(tr => tr.getAttribute(Attribute.dataName));
         let downloadName = 'stitched-image.png';
         
-        if (fileNames.length > 0) {
-            // 使用第一个文件的名称作为基础，移除扩展名并添加"-stitched"后缀
-            const firstFileName = fileNames[0];
-            const baseName = firstFileName.replace(/\.[^/.]+$/, ""); // 移除文件扩展名
+        if (Element.imagesList.children.length > 0) {
+            const firstImageElement = Element.imagesList.children[0];
+            const originalPdfName = firstImageElement.getAttribute('data-original-pdf-name');
+            let baseName;
+
+            if (originalPdfName) {
+                baseName = originalPdfName.replace(/\.[^/.]+$/, ""); // 移除原始PDF文件的扩展名
+            } else {
+                const firstFileName = firstImageElement.getAttribute(Attribute.dataName);
+                baseName = firstFileName.replace(/\.[^/.]+$/, ""); // 移除文件扩展名
+            }
             downloadName = `${baseName}-stitched.png`;
         }
         
@@ -323,7 +329,7 @@ const handleFiles = files => {
     });
 };
 
-const handleImageFile = file => {
+const handleImageFile = (file, originalPdfName = null) => {
     const tr      = document.createElement(Text.tableRowTag);
         const tdThumb = document.createElement(Text.tableDataTag);
         const tdName  = document.createElement(Text.tableDataTag);
@@ -332,6 +338,9 @@ const handleImageFile = file => {
         tr.setAttribute(Attribute.draggable, Text.trueValue);
         tr.setAttribute(Attribute.dataFile, URL.createObjectURL(file));
         tr.setAttribute(Attribute.dataName, file.name);
+        if (originalPdfName) {
+            tr.setAttribute('data-original-pdf-name', originalPdfName);
+        }
 
         const img     = document.createElement('img');
         img.src       = URL.createObjectURL(file);
@@ -418,7 +427,7 @@ const handlePdfFile = async file => {
 
         const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
         const imageFile = new File([blob], `${file.name}-page-${i}.png`, { type: 'image/png' });
-        handleImageFile(imageFile);
+        handleImageFile(imageFile, file.name); // 传递原始PDF文件名
     }
 };
 

@@ -238,7 +238,7 @@ Element.saveButton.addEventListener(EventName.click, () => {
                 const firstFileName = firstImageElement.getAttribute(Attribute.dataName);
                 baseName = firstFileName.replace(/\.[^/.]+$/, ""); // 移除文件扩展名
             }
-            downloadName = `${baseName}-stitched.png`;
+            downloadName = `${baseName}.png`; // 移除 -stitched 后缀
         }
         
         link.download = downloadName;
